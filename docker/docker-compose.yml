@@ -6,8 +6,32 @@ services:
       - IPC_LOCK
     ports:
       - "8200:8200"
+    environment:
+      VAULT_DEV_ROOT_TOKEN_ID: dev-root-token
     networks:
       default:
         aliases:
           - vault.mtls.docker
+
+  # server:
+  #   build:
+  #     context: ../server
+  #   ports:
+  #     - "8080:8080"
+  #   networks:
+  #     default:
+  #       aliases:
+  #         - server.mtls.docker
+
+  # client:
+  #   build:
+  #     context: ../client
+  #   networks:
+  #     default:
+  #       aliases:
+  #         - client.mtls.docker
+  #   environment: 
+  #     MTLS_SERVER_DOMAIN: "server.mtls.docker"
+  #   depends_on: 
+  #     - server
 
