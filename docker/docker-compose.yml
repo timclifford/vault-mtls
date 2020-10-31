@@ -1,0 +1,13 @@
+version: "3.8"
+services:
+  vault:
+    image: vault:1.5.5
+    cap_add:
+      - IPC_LOCK
+    ports:
+      - "8200:8200"
+    networks:
+      default:
+        aliases:
+          - vault.mtls.docker
+
