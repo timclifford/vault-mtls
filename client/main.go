@@ -4,6 +4,7 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -11,8 +12,61 @@ import (
 	"time"
 )
 
-func createCertPool() *x509.CertPool {
-	rootCert, err := ioutil.ReadFile("certs/root.pem")
+func main() {
+	serverURL := constructURLFromEnv("MTLS_SERVER", "/hello")
+	certURL := constructURLFromEnv("MTLS_CA", "/v1/pki/ca/pem")
+
+	certPath := "./certs/root.pem"
+
+	downloadRootCert(certURL, certPath)
+	certPool := createCertPool(certPath)
+
+	client := &http.Client{
+		Transport: &http.Transport{
+			TLSClientConfig: &tls.Config{
+				RootCAs: certPool,
+			},
+		},
+	}
+
+	for {
+		body := callServer(serverURL, client)
+		fmt.Printf("%s\n", body)
+		time.Sleep(1 * time.Second)
+	}
+}
+
+func constructURLFromEnv(key, endpoint string) string {
+	domain, domainProvided := os.LookupEnv(key)
+	if !domainProvided {
+		log.Fatal("Please set the", key, "environment variable")
+	}
+
+	return fmt.Sprintf("%s%s", domain, endpoint)
+}
+
+func downloadRootCert(url, certPath string) {
+	fmt.Println("Downloading root certificate from ", url)
+
+	response, err := http.Get(url)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer response.Body.Close()
+	fmt.Println("Fetched root certificate from ", url)
+
+	file, err := os.Create(certPath)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer file.Close()
+
+	_, err = io.Copy(file, response.Body)
+	fmt.Println("Certificate saved to ", certPath)
+}
+
+func createCertPool(certPath string) *x509.CertPool {
+	rootCert, err := ioutil.ReadFile(certPath)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -20,15 +74,6 @@ func createCertPool() *x509.CertPool {
 	certPool.AppendCertsFromPEM(rootCert)
 
 	return certPool
-}
-
-func constructURL() string {
-	domain, domainProvided := os.LookupEnv("MTLS_SERVER_DOMAIN")
-	if !domainProvided {
-		log.Fatal("Please set the MTLS_SERVER_DOMAIN environment variable")
-	}
-
-	return fmt.Sprintf("https://%s:8443/hello", domain)
 }
 
 func callServer(url string, client *http.Client) []byte {
@@ -44,23 +89,4 @@ func callServer(url string, client *http.Client) []byte {
 	}
 
 	return body
-}
-
-func main() {
-	url := constructURL()
-	certPool := createCertPool()
-
-	client := &http.Client{
-		Transport: &http.Transport{
-			TLSClientConfig: &tls.Config{
-				RootCAs: certPool,
-			},
-		},
-	}
-
-	for {
-		body := callServer(url, client)
-		fmt.Printf("%s\n", body)
-		time.Sleep(1 * time.Second)
-	}
 }

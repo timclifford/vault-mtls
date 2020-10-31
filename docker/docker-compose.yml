@@ -13,25 +13,24 @@ services:
         aliases:
           - vault.mtls.docker
 
-  # server:
-  #   build:
-  #     context: ../server
-  #   ports:
-  #     - "8080:8080"
-  #   networks:
-  #     default:
-  #       aliases:
-  #         - server.mtls.docker
+  server:
+    build:
+      context: ../server
+    networks:
+      default:
+        aliases:
+          - server.mtls.docker
 
-  # client:
-  #   build:
-  #     context: ../client
-  #   networks:
-  #     default:
-  #       aliases:
-  #         - client.mtls.docker
-  #   environment: 
-  #     MTLS_SERVER_DOMAIN: "server.mtls.docker"
-  #   depends_on: 
-  #     - server
+  client:
+    build:
+      context: ../client
+    networks:
+      default:
+        aliases:
+          - client.mtls.docker
+    environment: 
+      MTLS_SERVER: "https://server.mtls.docker:8443"
+      MTLS_CA: "http://vault.mtls.docker:8200"
+    depends_on: 
+      - server
 

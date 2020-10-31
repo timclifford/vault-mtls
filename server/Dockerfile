@@ -11,6 +11,6 @@ FROM alpine:3.12
 
 WORKDIR /app
 
-COPY --from=build /app/certs ./app/certs
+COPY --from=build /app/certs ./certs
 COPY --from=build /app/build/server ./server
 CMD ["/app/server"]
