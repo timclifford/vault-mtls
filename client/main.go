@@ -4,7 +4,6 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"fmt"
-	"io"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -14,12 +13,7 @@ import (
 
 func main() {
 	serverURL := constructURLFromEnv("MTLS_SERVER", "/hello")
-	certURL := constructURLFromEnv("MTLS_CA", "/v1/pki/ca/pem")
-
-	certPath := "./certs/root.pem"
-
-	downloadRootCert(certURL, certPath)
-	certPool := createCertPool(certPath)
+	certPool := createCertPool("./certs/root.pem")
 
 	client := &http.Client{
 		Transport: &http.Transport{
@@ -43,26 +37,6 @@ func constructURLFromEnv(key, endpoint string) string {
 	}
 
 	return fmt.Sprintf("%s%s", domain, endpoint)
-}
-
-func downloadRootCert(url, certPath string) {
-	fmt.Println("Downloading root certificate from ", url)
-
-	response, err := http.Get(url)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer response.Body.Close()
-	fmt.Println("Fetched root certificate from ", url)
-
-	file, err := os.Create(certPath)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer file.Close()
-
-	_, err = io.Copy(file, response.Body)
-	fmt.Println("Certificate saved to ", certPath)
 }
 
 func createCertPool(certPath string) *x509.CertPool {
