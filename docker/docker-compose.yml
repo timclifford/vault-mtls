@@ -30,7 +30,6 @@ services:
           - client.mtls.docker
     environment: 
       MTLS_SERVER: "https://server.mtls.docker:8443"
-      MTLS_CA: "http://vault.mtls.docker:8200"
     depends_on: 
       - server
 

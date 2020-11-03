@@ -11,6 +11,6 @@ FROM alpine:3.12
 
 WORKDIR /app
 
+COPY --from=build /app/certs ./certs
 COPY --from=build /app/build/client ./client
-RUN mkdir /app/certs
 CMD ["/app/client"]
