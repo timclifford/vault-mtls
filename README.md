@@ -39,5 +39,5 @@ MTLS_SERVER=https://localhost:8443 go run main.go
 
 ## ToDo
 - [x] Implement mutual TLS (currently only one-way)
-- [ ] Add an intermediate CA
+- [x] Add an intermediate CA
 - [ ] Deploy in k8s
