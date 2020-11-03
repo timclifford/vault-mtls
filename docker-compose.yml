@@ -15,7 +15,7 @@ services:
 
   server:
     build:
-      context: ../server
+      context: ./server
     networks:
       default:
         aliases:
@@ -23,7 +23,7 @@ services:
 
   client:
     build:
-      context: ../client
+      context: ./client
     networks:
       default:
         aliases:

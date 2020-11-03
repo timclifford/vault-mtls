@@ -12,7 +12,7 @@ else
   VAULT_ADDRESS="http://localhost:8200"
 fi
 
-docker-compose --file docker/docker-compose.yml up --detach --scale client=0 --scale server=0
+docker-compose up --detach --scale client=0 --scale server=0
 
 export VAULT_ADDR=http://localhost:8200
 until vault login dev-root-token; do

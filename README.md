@@ -15,7 +15,7 @@ root certificate.
 
 Finally:
 ```
-docker-compose -f docker/docker-compose.yml up --build
+docker-compose up --build
 ```
 Will build the client and server applications, then run them in docker.
 
