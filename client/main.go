@@ -35,7 +35,7 @@ func main() {
 func constructURLFromEnv(key, endpoint string) string {
 	domain, domainProvided := os.LookupEnv(key)
 	if !domainProvided {
-		log.Fatal("Please set the ", key, " environment variable")
+		log.Fatal("Please set the", key, "environment variable")
 	}
 
 	return fmt.Sprintf("%s%s", domain, endpoint)

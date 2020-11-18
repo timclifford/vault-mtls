@@ -1,6 +1,6 @@
-.vscode/
 terraform/.terraform
 terraform/*.tfstate
 terraform/*.tfstate.backup
 server/certs/*.pem
 client/certs/*.pem
+
