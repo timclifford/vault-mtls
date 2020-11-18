@@ -18,8 +18,11 @@ rm -f server/certs/*.pem
 rm -f client/certs/*.pem
 
 echo "Downloading root certificate..."
-curl http://localhost:8200/v1/pki/ca/pem > server/certs/root.pem
+curl http://localhost:8200/v1/pki_root/ca/pem > server/certs/root.pem
 cp server/certs/root.pem client/certs/root.pem
+
+echo "Downloading intermediate certificate..."
+CA_SIGNING_CERT=$( curl http://localhost:8200/v1/pki/ca/pem )
 
 echo "Generating server certs..."
 SERVER_OUTPUT=$( vault write "/pki/issue/$ROLE_NAME" \
@@ -28,6 +31,7 @@ SERVER_OUTPUT=$( vault write "/pki/issue/$ROLE_NAME" \
 
 echo "$SERVER_OUTPUT" | jq -r .data.private_key > server/certs/key.pem
 echo "$SERVER_OUTPUT" | jq -r .data.certificate > server/certs/cert.pem
+echo "$CA_SIGNING_CERT" >> server/certs/cert.pem
 
 echo "Generating client certs..."
 CLIENT_OUTPUT=$( vault write "/pki/issue/$ROLE_NAME" \
@@ -36,5 +40,6 @@ CLIENT_OUTPUT=$( vault write "/pki/issue/$ROLE_NAME" \
 
 echo "$CLIENT_OUTPUT" | jq -r .data.private_key > client/certs/key.pem
 echo "$CLIENT_OUTPUT" | jq -r .data.certificate > client/certs/cert.pem
+echo "$CA_SIGNING_CERT" >> client/certs/cert.pem
 
 echo "Done!"
