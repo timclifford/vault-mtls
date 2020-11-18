@@ -25,10 +25,35 @@ resource "vault_pki_secret_backend_intermediate_set_signed" "set_signed" {
   certificate = vault_pki_secret_backend_root_sign_intermediate.signed_intermediate.certificate
 }
 
-resource "vault_pki_secret_backend_role" "issuing_role" {
-  backend          = vault_mount.pki_intermediate.path
-  name             = replace(var.base_domain, ".", "-")
-  max_ttl          = "72h"
-  allowed_domains  = [var.base_domain]
-  allow_subdomains = true
-}
+resource "vault_pki_secret_backend_role" "server_role" {
+   backend = vault_mount.pki_intermediate.path
+   name    = "server"
+   max_ttl = "72h"
+
+   allowed_domains    = [var.base_domain]
+   allow_any_name     = false
+   allow_glob_domains = true
+   allow_ip_sans      = true
+   allow_subdomains   = true
+   enforce_hostnames  = true
+
+   client_flag = false
+   server_flag = true
+ }
+
+ resource "vault_pki_secret_backend_role" "client_role" {
+   backend = vault_mount.pki_intermediate.path
+   name    = "client"
+   max_ttl = "72h"
+
+   allowed_domains    = [var.base_domain]
+   allow_any_name     = false
+   allow_bare_domains = true // Required for email addresses
+   allow_glob_domains = false
+   allow_ip_sans      = true
+   allow_subdomains   = false
+   enforce_hostnames  = true
+
+   client_flag = true
+   server_flag = false
+ }
