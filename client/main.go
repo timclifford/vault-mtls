@@ -14,20 +14,20 @@ import (
 func main() {
 	serverURL := constructURLFromEnv("MTLS_SERVER", "/hello")
 	certPool := createCertPool("./certs/root.pem")
-	certificate := readCertificate()
+	clientCertificate := readCertificate("./certs/cert.pem", "./certs/key.pem")
 
 	client := &http.Client{
 		Transport: &http.Transport{
 			TLSClientConfig: &tls.Config{
 				RootCAs:      certPool,
-				Certificates: []tls.Certificate{certificate},
+				Certificates: []tls.Certificate{clientCertificate},
 			},
 		},
 	}
 
 	for {
 		body := callServer(serverURL, client)
-		fmt.Printf("%s\n", body)
+		fmt.Println(string(body))
 		time.Sleep(1 * time.Second)
 	}
 }
@@ -52,8 +52,8 @@ func createCertPool(certPath string) *x509.CertPool {
 	return certPool
 }
 
-func readCertificate() tls.Certificate {
-	cert, err := tls.LoadX509KeyPair("./certs/cert.pem", "./certs/key.pem")
+func readCertificate(certPath, keyPath string) tls.Certificate {
+	cert, err := tls.LoadX509KeyPair(certPath, keyPath)
 	if err != nil {
 		log.Fatal("Error reading certificate and private key")
 	}

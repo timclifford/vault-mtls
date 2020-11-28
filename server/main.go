@@ -11,12 +11,10 @@ import (
 
 func main() {
 	certPool := createCertPool("./certs/root.pem")
-
 	tlsConfig := &tls.Config{
 		ClientCAs:  certPool,
 		ClientAuth: tls.RequireAndVerifyClientCert,
 	}
-	tlsConfig.BuildNameToCertificate()
 
 	server := &http.Server{
 		Addr:      ":8443",
